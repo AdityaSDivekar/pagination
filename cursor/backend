@@ -1,0 +1,21 @@
+// Concept: Uses a unique value (cursor) from the last record of the previous page (e.g., an id or timestamp).
+
+// Pros: More efficient for large or changing datasets; stable results.
+
+// Cons: Harder to jump to arbitrary pages; more complex implementation.
+
+// GET /api/items?cursor=60e8d6f9a5c1b2a1e0f1a2b3&limit=10
+const cursor = req.query.cursor;
+const limit = parseInt(req.query.limit) || 10;
+
+let query = {};
+if (cursor) {
+  query._id = { $gt: cursor }; // For ascending order
+}
+
+const items = await Item.find(query).limit(limit);
+
+res.json({
+  nextCursor: items.length ? items[items.length - 1]._id : null,
+  data: items
+});
